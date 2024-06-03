@@ -8,14 +8,9 @@ import random
 import getch
 
 
-KEY_MAP = {
-    'r': 'Rock!!',
-    'p': 'Paper!!',
-    's': 'Scissors!!'
-}
+from config import get_config
 
-SLEEP_ENABLED = True
-
+cfg = get_config()
 
 
 def write_to_screen(text):
@@ -40,8 +35,10 @@ def highlighted_text(text):
     write_to_screen("\n\n" + "="*10 + "\n" + text + "\n" + "="*10 + "\n")
 
 
-def randomize_outcome():
-    return random.choice(["Rock!!", "Paper!!", "Scissors!!"])
+def randomize_outcome(options=None):
+    if options is None:
+        options = ["Rock!!", "Paper!!", "Scissors!!"]
+    return random.choice(options)
 
 
 def user_won(computer_generated, user_input):
@@ -63,34 +60,27 @@ def user_won(computer_generated, user_input):
 
 
 def sleep_for(time_in_seconds):
-    global SLEEP_ENABLED
-
-    if SLEEP_ENABLED:
+    if cfg.get('SLEEP_ENABLED', True):
         time.sleep(time_in_seconds)
 
 
 
 def level_1():
+
+    def _custom_print(text):
+        sys.stdout.write(text)
+        sys.stdout.flush()
+        sleep_for(1)
+
     line_seperated_text("Welcome to level 1., Good Luck\n")
     write_to_screen("Pick from Rock-Paper-Scissors, I say Rock, Paper, Scissors... Shoot! and we go!\n\n")
 
     sleep_for(3)
 
-    sys.stdout.write("\rRock...")
-    sys.stdout.flush()
-    sleep_for(1)
-
-    sys.stdout.write("\rPaper...")
-    sys.stdout.flush()
-    sleep_for(1)
-
-    sys.stdout.write("\rScissors...")
-    sys.stdout.flush()
-    sleep_for(1)
-
-    sys.stdout.write("\rShooooooot!")
-    sys.stdout.flush()
-    sleep_for(1)
+    _custom_print("\rRock...")
+    _custom_print("\rPaper...")
+    _custom_print("\rScissors...")
+    _custom_print("\rShooooooot!")
 
     computer_generated = randomize_outcome()
 
@@ -104,7 +94,7 @@ def play_game():
         
         computer_generated = level_1()
 
-        player_input = KEY_MAP[str(read_single_key("\n\nWhat was your choice? r / p / s ")).lower()]
+        player_input = cfg.get('KEY_MAP')[str(read_single_key("\n\nWhat was your choice? r / p / s ")).lower()]
 
         player_won = user_won(computer_generated, player_input)
 
